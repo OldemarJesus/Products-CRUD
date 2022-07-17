@@ -1,0 +1,16 @@
+{
+    "name": "oldemar/product-managament-v2",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Oldemar\\ProductManagamentV2\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Oldemar Jesus",
+            "email": "oldemego@gmail.com"
+        }
+    ],
+    "require": {}
+}
