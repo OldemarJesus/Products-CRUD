@@ -45,6 +45,45 @@ class ProductController{
         return $status == 1 ? 201 : 422;
     }
 
+    public function updateProduct($data = null): int{
+
+        // $data = [
+        //     "name"=>"Fernando",
+        //     "price"=>1599,
+        //     "stock"=>150,
+        //     "id"=>2
+        // ];
+
+        //validate
+        if(is_null($data) || is_null($data["name"]) || is_null($data["price"]) || is_null($data["stock"]) || is_null($data["id"])){
+            return "Missing Values";
+        }
+
+        try{
+        // Create Product Intance
+        $product = new ProductEntity();
+
+        // Assign values
+        $product->setID($data["id"]);
+        $product->setNAME($data["name"]);
+        $product->setPRICE(floatval($data["price"]));
+        $product->setSTOCK((int)$data["stock"]);
+
+        }catch(TypeError $e){
+            return 422;
+        }
+
+        // Insert op
+        try{
+        $model = new ProductModel();
+        $status = $model->update($product);
+        }catch(Exception $e){
+            return 500;
+        }
+
+        return $status == 1 ? 200 : 422;
+    }
+
     public function findByID(int $id): ProductEntity{
         $model = new ProductModel();
 

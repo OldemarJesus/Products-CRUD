@@ -38,6 +38,45 @@ class ProductModel
         return $res;
     }
 
+    public function update(ProductEntity $product): bool
+    {
+        $database = Database::getConnection();
+
+        // validate
+        if (is_null($product->getNAME()) || is_null($product->getPRICE() || is_null($product->getSTOCK()) || is_null($product->getID()))) {
+            return false;
+        }
+
+        $id = $product->getID();
+        $name = $product->getNAME();
+        $price = (int)($product->getPRICE() * 100);
+        $stock = $product->getSTOCK();
+
+        // insert to database
+        $statement = '
+        UPDATE products 
+        SET 
+            product_name = :name, 
+            product_price = :price, 
+            product_stock = :stock, 
+            updated_at = CURRENT_TIMESTAMP
+        WHERE
+            products.product_id == :id;
+        ';
+
+        $stmt = $database->prepare($statement);
+
+        /* bind params */
+        $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':price', $price, PDO::PARAM_INT);
+        $stmt->bindParam(':stock', $stock, PDO::PARAM_INT);
+
+        $res = $stmt->execute();
+
+        return $res;
+    }
+
     public function find(int $id): ProductEntity
     {
         $database = Database::getConnection();

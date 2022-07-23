@@ -52,7 +52,7 @@ $productArr = (new ProductController())->allProduct();
                         <td>€<?= $data->getPRICE() ?></td>
                         <td><?= $data->getSTOCK() ?></td>
                         <td>
-                            <button type="button" class="btn btn-secondary">
+                            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#formModalUpdate">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
                                     <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
                                 </svg>
@@ -105,6 +105,42 @@ $productArr = (new ProductController())->allProduct();
                             <div class="modal-footer mt-3">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 <button type="submit" class="btn btn-primary">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="formModalUpdate" tabindex="-1" aria-labelledby="formModalUpdateLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="formModalUpdateLabel">Update - Form</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h5 class="text-center">Update Product Informations</h5>
+                        <hr>
+                        <form id="updateForm">
+                            <input type="hidden" name="id" id="idInputUpdate">
+                            <div class="mb-3">
+                                <label for="nameInputUpdate" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="nameInputUpdate" placeholder="Insert product name" required>
+                            </div>
+                            <div class="row g-3 justify-content-between">
+                                <div class="col-auto">
+                                    <label for="priceInputUpdate" class="form-label">Price €</label>
+                                    <input type="number" class="form-control" id="priceInputUpdate" min="0.01" step="0.01" value="0" required>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="stockInputUpdate" class="form-label">Stock</label>
+                                    <input type="number" class="form-control" id="stockInputUpdate" min="0" step="1" value="0" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer mt-3">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Update</button>
                             </div>
                         </form>
                     </div>
@@ -165,9 +201,97 @@ $productArr = (new ProductController())->allProduct();
         })
     </script>
 
+    <!-- Update Product Script -->
+    <script>
+        form = document.getElementById("updateForm");
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const id = document.getElementById("idInputUpdate").value;
+            const name = document.getElementById("nameInputUpdate").value;
+            const price = document.getElementById("priceInputUpdate").value;
+            const stock = document.getElementById("stockInputUpdate").value;
+
+            let errors = [];
+
+            if (id == '' || id == null) {
+                errors.push("id value is required");
+            }
+
+            if (name == '' || name == null) {
+                errors.push("name value is required");
+            }
+
+            if (price == '' || price == null) {
+                errors.push("price value is required");
+            }
+
+            if (stock == '' || stock == null) {
+                errors.push("stock value is required");
+            }
+
+            if (errors.length > 0) {
+                alert(errors.toString());
+                return;
+            }
+
+
+            const data = new URLSearchParams();
+            const url = "http://localhost:3000/v1/project/update.php";
+
+            data.append("id", id);
+            data.append("name", name);
+            data.append("price", price);
+            data.append("stock", stock);
+
+            fetch(url, {
+                    method: 'post',
+                    body: data,
+                })
+                .then(res => {
+                    if (res.status == 200) {
+                        alert("Product created successfully");
+                        window.location.reload();
+                    } else {
+                        alert("Something goes wrong");
+                        console.log(res);
+                    }
+                });
+        });
+
+
+        // When click to edit
+        const modal = document.getElementById('formModalUpdate')
+        modal.addEventListener('show.bs.modal', event => {
+            // Locate data to modal
+            const trChilds = event.relatedTarget?.parentElement?.parentNode?.childNodes;
+            const id = trChilds[1].textContent;
+            const name = trChilds[3].textContent;
+            const price = trChilds[5].textContent.substring(1, trChilds[5].textContent.length);
+            const stock = trChilds[7].textContent;
+
+            // filling modal
+            // console.log(modal.childNodes[1].childNodes[1].childNodes[3].childNodes[5].childNodes);
+            modal.childNodes[1].childNodes[1].childNodes[3].childNodes[5].childNodes[1].value = id;
+            modal.childNodes[1].childNodes[1].childNodes[3].childNodes[5].childNodes[5].childNodes[1].childNodes[3].value = price;
+            modal.childNodes[1].childNodes[1].childNodes[3].childNodes[5].childNodes[5].childNodes[3].childNodes[3].value = stock;
+            modal.childNodes[1].childNodes[1].childNodes[3].childNodes[5].childNodes[3].childNodes[3].value = name;
+        });
+
+        // When close from modal
+        modal.addEventListener('hide.bs.modal', event => {
+            // console.log(modal.childNodes[1].childNodes[1].childNodes[3].childNodes[5].childNodes);
+            modal.childNodes[1].childNodes[1].childNodes[3].childNodes[5].childNodes[1].value = "";
+            modal.childNodes[1].childNodes[1].childNodes[3].childNodes[5].childNodes[5].childNodes[1].childNodes[3].value = "";
+            modal.childNodes[1].childNodes[1].childNodes[3].childNodes[5].childNodes[5].childNodes[3].childNodes[3].value = "";
+            modal.childNodes[1].childNodes[1].childNodes[3].childNodes[5].childNodes[3].childNodes[3].value = "";
+        });
+    </script>
+
     <!-- Remove Product Script -->
     <script>
-        function deleteFunction(id){
+        function deleteFunction(id) {
             const data = new URLSearchParams();
             const url = "http://localhost:3000/v1/project/delete.php";
 
